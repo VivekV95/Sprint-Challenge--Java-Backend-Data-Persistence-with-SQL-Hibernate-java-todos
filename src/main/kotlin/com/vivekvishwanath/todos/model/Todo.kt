@@ -1,6 +1,7 @@
 package com.vivekvishwanath.todos.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.persistence.*
 
@@ -16,8 +17,10 @@ class Todo: Auditable {
     @Column(nullable = false)
     var description: String? = ""
 
-    @Temporal(TemporalType.TIMESTAMP)
-    var datecreated: Date? = Date()
+    var datecreated: String? = ""
+     get() {
+         return SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())
+     }
 
     var completed: Boolean = false
 
@@ -30,7 +33,7 @@ class Todo: Auditable {
 
     constructor(description: String, date: Date, user: User) {
         this.description = description
-        this.datecreated = date
+        this.datecreated = SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(date)
         this.user = user
     }
 }
