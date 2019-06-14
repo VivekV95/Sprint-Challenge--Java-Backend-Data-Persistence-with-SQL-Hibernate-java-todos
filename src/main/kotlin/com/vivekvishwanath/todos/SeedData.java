@@ -42,7 +42,7 @@ public class SeedData implements CommandLineRunner {
         rolerepos.save(r1);
         rolerepos.save(r2);
 
-        User u1 = new User("barnbarn", "ILuvM4th!", users);
+        User u1 = new User("barnbarn", "password", users);
         User u2 = new User("admin", "password", admins);
 
         // the date and time string should get coverted to a datetime Java data type. This is done in the constructor!
@@ -50,8 +50,8 @@ public class SeedData implements CommandLineRunner {
         u1.getTodos().add(new Todo("Feed the turtles", new Date(), u1));
         u1.getTodos().add(new Todo("Complete the sprint challenge", new Date(), u1));
 
-        u2.getTodos().add(new Todo("Walk the dogs", new Date(), u1));
-        u2.getTodos().add(new Todo("provide feedback to my instructor", new Date(), u1));
+        u2.getTodos().add(new Todo("Walk the dogs", new Date(), u2));
+        u2.getTodos().add(new Todo("provide feedback to my instructor", new Date(), u2));
 
         userrepos.save(u1);
         userrepos.save(u2);

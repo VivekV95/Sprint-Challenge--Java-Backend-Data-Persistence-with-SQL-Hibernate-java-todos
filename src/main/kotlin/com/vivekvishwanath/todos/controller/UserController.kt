@@ -24,6 +24,12 @@ class UserController {
     @Autowired
     private lateinit var userService: UserService
 
+    @GetMapping(value = ["/mine"], produces = ["application/json"])
+    fun getMyUserAndTodos(request: HttpServletRequest): ResponseEntity<*> {
+        val user = userService.findByUsername(request.userPrincipal.name)
+        return ResponseEntity(user, HttpStatus.OK)
+    }
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping(value = ["/users"], produces = ["application/json"])
     fun listAllUsers(request: HttpServletRequest): ResponseEntity<*> {

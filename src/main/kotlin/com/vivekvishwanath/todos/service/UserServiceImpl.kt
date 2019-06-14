@@ -75,7 +75,7 @@ class UserServiceImpl : UserDetailsService, UserService {
     @Transactional
     override fun update(user: User, id: Long): User {
         val authentication = SecurityContextHolder.getContext().authentication
-        val currentUser = userrepos!!.findByUsername(authentication.name)
+        val currentUser = userrepos.findByUsername(authentication.name)
 
         if (currentUser != null) {
             if (id == currentUser.userid) {
