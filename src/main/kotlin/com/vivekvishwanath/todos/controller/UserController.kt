@@ -1,9 +1,11 @@
 package com.vivekvishwanath.todos.controller
 
 
+import com.vivekvishwanath.todos.exception.ResourceNotFoundException
 import com.vivekvishwanath.todos.model.Todo
 import com.vivekvishwanath.todos.model.User
 import com.vivekvishwanath.todos.service.UserService
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -17,17 +19,25 @@ import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import java.net.URI
 import java.net.URISyntaxException
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.persistence.EntityNotFoundException
 
 @RestController
 @RequestMapping("/users")
 class UserController {
 
+    companion object{
+        private val logger = KotlinLogging.logger{}
+    }
+
     @Autowired
     private lateinit var userService: UserService
 
     @GetMapping(value = ["/mine"], produces = ["application/json"])
     fun getMyUserAndTodos(request: HttpServletRequest): ResponseEntity<*> {
+        logger.info { "users/mine (GET) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         val user = userService.findByUsername(request.userPrincipal.name)
         return ResponseEntity(user, HttpStatus.OK)
     }
@@ -35,15 +45,21 @@ class UserController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping(value = ["/users"], produces = ["application/json"])
     fun listAllUsers(request: HttpServletRequest): ResponseEntity<*> {
+        logger.info { "users/users (GET) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         val myUsers = userService.findAll()
         return ResponseEntity(myUsers, HttpStatus.OK)
     }
 
 
+    @Throws(ResourceNotFoundException::class)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping(value = ["/user/{userId}"], produces = ["application/json"])
     fun getUser(request: HttpServletRequest, @PathVariable userId: Long?): ResponseEntity<*> {
-        val u = userId?.let { userService.findUserById(it) }
+        logger.info { "users/user/$userId (GET) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
+        val u = userId?.let { userService.findUserById(it) } ?:
+        throw ResourceNotFoundException("User with id $userId not found")
         return ResponseEntity(u, HttpStatus.OK)
     }
 
@@ -51,26 +67,17 @@ class UserController {
     @GetMapping(value = ["/getusername"], produces = ["application/json"])
     @ResponseBody
     fun getCurrentUserName(request: HttpServletRequest, authentication: Authentication): ResponseEntity<*> {
+        logger.info { "users/getusername (GET) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         return ResponseEntity(authentication.principal, HttpStatus.OK)
     }
-
-    /* @GetMapping(value = ["/todo/{userid}"], consumes = ["application/json"], produces = ["application/json"])
-    fun addTodoToUser(@PathVariable userId: Long,
-                      request: HttpServletRequest,
-                      authentication: Authentication,
-                      @Valid @RequestBody todo: Todo): ResponseEntity<*> {
-        val user = userService.findByUsername(request.userPrincipal.name)
-        if (user.userid == userId) {
-            user.todos.add(todo)
-        }
-        return ResponseEntity(userService.save(user), HttpStatus.OK)
-    } */
-
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping(value = ["/user"], consumes = ["application/json"], produces = ["application/json"])
     @Throws(URISyntaxException::class)
     fun addNewUser(request: HttpServletRequest, @Valid @RequestBody newuser: User): ResponseEntity<*> {
+        logger.info { "users/user (POST) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         var newuser = newuser
         newuser = userService.save(newuser)
 
@@ -90,7 +97,8 @@ class UserController {
     @PutMapping(value = ["/user/{id}"])
     fun updateUser(request: HttpServletRequest, @RequestBody updateUser: User,
                    @PathVariable id: Long): ResponseEntity<*> {
-
+        logger.info { "users/user/$id (PUT) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         userService.update(updateUser, id)
         return ResponseEntity<Any>(HttpStatus.OK)
     }
@@ -99,6 +107,8 @@ class UserController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/user/{id}")
     fun deleteUserById(request: HttpServletRequest, @PathVariable id: Long): ResponseEntity<*> {
+        logger.info { "users/user/$id (DELETE) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         userService.delete(id)
         return ResponseEntity<Any>(HttpStatus.OK)
     }
@@ -108,12 +118,16 @@ class UserController {
                       request: HttpServletRequest,
                       authentication: Authentication,
                       @Valid @RequestBody todo: Todo): ResponseEntity<*> {
+        logger.info { "users/todo/$userid (POST) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         return ResponseEntity(userService.addTodoToUser(todo, userid), HttpStatus.OK)
     }
 
     @PutMapping(value = ["todos/todoid/{todoid}"],
             consumes = ["application/json"], produces = ["application/json"])
     fun updateTodo(@Valid @RequestBody todo: Todo, @PathVariable todoid: Long): ResponseEntity<*> {
+        logger.info { "users/todos/todoid/$todoid (PUT) accessed" +
+                " on ${SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS Z").format(Date())}" }
         return ResponseEntity(userService.updateTodoById(todo, todoid), HttpStatus.OK)
     }
 }
