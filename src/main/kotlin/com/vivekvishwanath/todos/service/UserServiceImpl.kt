@@ -4,6 +4,7 @@ import com.vivekvishwanath.todos.model.Todo
 import com.vivekvishwanath.todos.model.User
 import com.vivekvishwanath.todos.model.UserRoles
 import com.vivekvishwanath.todos.repository.RoleRepository
+import com.vivekvishwanath.todos.repository.ToDoRepository
 import com.vivekvishwanath.todos.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
@@ -26,6 +27,9 @@ class UserServiceImpl : UserDetailsService, UserService {
     @Autowired
     lateinit var rolerepos: RoleRepository
 
+    @Autowired
+    lateinit var todorepos: ToDoRepository
+
     @Transactional
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
@@ -42,7 +46,7 @@ class UserServiceImpl : UserDetailsService, UserService {
 
     override fun findAll(): List<User> {
         val list = ArrayList<User>()
-        userrepos.findAll().iterator().forEachRemaining{ list.add(it) }
+        userrepos.findAll().iterator().forEachRemaining { list.add(it) }
         return list
     }
 
@@ -123,8 +127,30 @@ class UserServiceImpl : UserDetailsService, UserService {
                 todo.user = currentUser
                 currentUser.todos.add(todo)
                 return userrepos.save(currentUser)
+            } else {
+                throw EntityNotFoundException(java.lang.Long.toString(id) + " Not current user")
             }
-            else {
+        } else {
+            throw EntityNotFoundException(authentication.name)
+        }
+    }
+
+    override fun updateTodoById(updatedTodo: Todo, id: Long): User {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val currentUser = userrepos.findByUsername(authentication.name)
+        var valid = false
+        if (currentUser != null) {
+            for (todo in currentUser.todos) {
+                if (todo.totoid == id) {
+                    todo.completed = updatedTodo.completed
+                    todo.description = updatedTodo.description
+                    valid = true
+                   break
+                }
+            }
+            if (valid) {
+                return userrepos.save(currentUser)
+            } else {
                 throw EntityNotFoundException(java.lang.Long.toString(id) + " Not current user")
             }
         } else {

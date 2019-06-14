@@ -110,4 +110,10 @@ class UserController {
                       @Valid @RequestBody todo: Todo): ResponseEntity<*> {
         return ResponseEntity(userService.addTodoToUser(todo, userid), HttpStatus.OK)
     }
+
+    @PutMapping(value = ["todos/todoid/{todoid}"],
+            consumes = ["application/json"], produces = ["application/json"])
+    fun updateTodo(@Valid @RequestBody todo: Todo, @PathVariable todoid: Long): ResponseEntity<*> {
+        return ResponseEntity(userService.updateTodoById(todo, todoid), HttpStatus.OK)
+    }
 }

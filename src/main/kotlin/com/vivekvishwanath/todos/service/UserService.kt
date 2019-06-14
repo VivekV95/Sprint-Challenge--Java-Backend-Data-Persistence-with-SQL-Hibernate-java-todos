@@ -18,4 +18,6 @@ interface UserService {
     fun update(user: User, id: Long): User
 
     fun addTodoToUser(todo: Todo, id: Long): User
+
+    fun updateTodoById(updatedTodo: Todo, id: Long): User
 }
