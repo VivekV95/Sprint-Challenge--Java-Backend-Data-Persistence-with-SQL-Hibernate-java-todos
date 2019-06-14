@@ -98,7 +98,10 @@ class UserServiceImpl : UserDetailsService, UserService {
                         rolerepos.insertUserRoles(id, ur.role!!.roleid)
                     }
                 }
-
+                /* for (todo in user.todos) {
+                    todo.user = currentUser
+                    currentUser.todos.add(todo)
+                } */
                 return userrepos.save(currentUser)
             } else {
                 throw EntityNotFoundException(java.lang.Long.toString(id) + " Not current user")

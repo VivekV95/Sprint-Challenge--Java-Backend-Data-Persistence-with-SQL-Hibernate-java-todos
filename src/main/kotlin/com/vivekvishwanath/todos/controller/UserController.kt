@@ -1,6 +1,7 @@
 package com.vivekvishwanath.todos.controller
 
 
+import com.vivekvishwanath.todos.model.Todo
 import com.vivekvishwanath.todos.model.User
 import com.vivekvishwanath.todos.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import java.net.URI
 import java.net.URISyntaxException
+import javax.persistence.EntityNotFoundException
 
 @RestController
 @RequestMapping("/users")
@@ -99,5 +101,19 @@ class UserController {
     fun deleteUserById(request: HttpServletRequest, @PathVariable id: Long): ResponseEntity<*> {
         userService.delete(id)
         return ResponseEntity<Any>(HttpStatus.OK)
+    }
+
+    @PostMapping(value = ["/todo/{userid}"], consumes = ["application/json"], produces = ["application/json"])
+    fun addTodoToUser(@PathVariable userid: Long,
+                      request: HttpServletRequest,
+                      authentication: Authentication,
+                      @Valid @RequestBody todo: Todo): ResponseEntity<*> {
+        val user = userService.findByUsername(request.userPrincipal.name)
+        if (user.userid == userid) {
+            user.todos.add(todo)
+        } else {
+            throw EntityNotFoundException(java.lang.Long.toString(userid) + " Not current user")
+        }
+        return ResponseEntity(userService.update(user, userid), HttpStatus.OK)
     }
 }

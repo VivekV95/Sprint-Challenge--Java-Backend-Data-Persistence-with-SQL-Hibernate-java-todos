@@ -17,7 +17,7 @@ class Todo: Auditable {
     var description: String? = ""
 
     @Temporal(TemporalType.TIMESTAMP)
-    var datecreated: Date? = null
+    var datecreated: Date? = Date()
 
     var completed: Boolean = false
 
