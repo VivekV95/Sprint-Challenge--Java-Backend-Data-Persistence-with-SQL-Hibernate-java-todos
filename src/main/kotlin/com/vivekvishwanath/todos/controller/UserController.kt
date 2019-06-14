@@ -108,12 +108,6 @@ class UserController {
                       request: HttpServletRequest,
                       authentication: Authentication,
                       @Valid @RequestBody todo: Todo): ResponseEntity<*> {
-        val user = userService.findByUsername(request.userPrincipal.name)
-        if (user.userid == userid) {
-            user.todos.add(todo)
-        } else {
-            throw EntityNotFoundException(java.lang.Long.toString(userid) + " Not current user")
-        }
-        return ResponseEntity(userService.update(user, userid), HttpStatus.OK)
+        return ResponseEntity(userService.addTodoToUser(todo, userid), HttpStatus.OK)
     }
 }

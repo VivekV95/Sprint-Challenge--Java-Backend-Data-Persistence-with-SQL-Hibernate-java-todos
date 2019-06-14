@@ -1,5 +1,6 @@
 package com.vivekvishwanath.todos.service
 
+import com.vivekvishwanath.todos.model.Todo
 import com.vivekvishwanath.todos.model.User
 
 interface UserService {
@@ -15,4 +16,6 @@ interface UserService {
     fun findByUsername(username: String): User
 
     fun update(user: User, id: Long): User
+
+    fun addTodoToUser(todo: Todo, id: Long): User
 }

@@ -1,5 +1,6 @@
 package com.vivekvishwanath.todos.service
 
+import com.vivekvishwanath.todos.model.Todo
 import com.vivekvishwanath.todos.model.User
 import com.vivekvishwanath.todos.model.UserRoles
 import com.vivekvishwanath.todos.repository.RoleRepository
@@ -98,10 +99,7 @@ class UserServiceImpl : UserDetailsService, UserService {
                         rolerepos.insertUserRoles(id, ur.role!!.roleid)
                     }
                 }
-                /* for (todo in user.todos) {
-                    todo.user = currentUser
-                    currentUser.todos.add(todo)
-                } */
+
                 return userrepos.save(currentUser)
             } else {
                 throw EntityNotFoundException(java.lang.Long.toString(id) + " Not current user")
@@ -114,5 +112,23 @@ class UserServiceImpl : UserDetailsService, UserService {
 
     override fun findByUsername(username: String): User {
         return userrepos.findByUsername(username)
+    }
+
+    override fun addTodoToUser(todo: Todo, id: Long): User {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val currentUser = userrepos.findByUsername(authentication.name)
+
+        if (currentUser != null) {
+            if (id == currentUser.userid) {
+                todo.user = currentUser
+                currentUser.todos.add(todo)
+                return userrepos.save(currentUser)
+            }
+            else {
+                throw EntityNotFoundException(java.lang.Long.toString(id) + " Not current user")
+            }
+        } else {
+            throw EntityNotFoundException(authentication.name)
+        }
     }
 }
